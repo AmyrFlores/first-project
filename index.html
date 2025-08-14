@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mi primer HTML + CSS + JS</title>
+  <style>
+    :root {
+      --bg: #0b0b12;
+      --card: #131320;
+      --text: #e6e6f0;
+      --muted: #9aa0b4;
+      --accent: #6ea8fe;
+      --accent-2: #7ee787;
+      --border: #222238;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Inter, Arial, sans-serif;
+      background: radial-gradient(1200px 800px at 10% -10%, #11122a, #0b0b12);
+      color: var(--text);
+      line-height: 1.45;
+    }
+    .container {
+      max-width: 920px;
+      margin: 48px auto;
+      padding: 24px;
+    }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      backdrop-filter: blur(6px);
+    }
+    h1 {
+      font-size: 28px;
+      margin: 0 0 8px;
+    }
+    p.lead {
+      color: var(--muted);
+      margin: 0 0 20px;
+    }
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 16px 0 20px;
+    }
+    button {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, #1b1c31, #14152a);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform .06s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+    button:hover { border-color: #2c2c4a; box-shadow: 0 6px 22px rgba(0,0,0,0.25); }
+    button:active { transform: translateY(1px); }
+    .ghost { background: transparent; }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #0e0f1c;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 560px;
+    }
+    thead th {
+      text-align: left;
+      font-size: 14px;
+      color: var(--muted);
+      letter-spacing: .3px;
+      background: #10122a;
+    }
+    th, td { padding: 12px 14px; border-bottom: 1px solid var(--border); }
+    tbody tr:hover { background: rgba(255,255,255,0.03); }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(110,168,254,0.12);
+      border: 1px solid rgba(110,168,254,0.35);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .ok { color: var(--accent-2); border-color: rgba(126,231,135,0.35); background: rgba(126,231,135,0.12); }
+
+    .footer-note { color: var(--muted); font-size: 13px; margin-top: 16px; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>Demo: Texto, Tabla y Botón (HTML + CSS + JS)</h1>
+      <p id="intro" class="lead">Este es un ejemplo en un solo archivo. Puedes <strong>agregar filas</strong> a la tabla con el botón de JavaScript y ordenar por puntaje.</p>
+
+      <div class="actions">
+        <button id="btn-agregar">➕ Agregar fila</button>
+        <button id="btn-ordenar" class="ghost">↕️ Ordenar por puntaje</button>
+      </div>
+
+      <div class="table-wrap" role="region" aria-labelledby="tabla-titulo">
+        <span id="tabla-titulo" class="sr-only">Tabla de participantes y puntajes</span>
+        <table id="tabla">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Categoría</th>
+              <th>Puntaje</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Ana</td>
+              <td>Frontend</td>
+              <td data-num="92">92</td>
+              <td><span class="badge ok">Activo</span></td>
+            </tr>
+            <tr>
+              <td>Luis</td>
+              <td>Backend</td>
+              <td data-num="81">81</td>
+              <td><span class="badge">Pendiente</span></td>
+            </tr>
+            <tr>
+              <td>Sofía</td>
+              <td>Data</td>
+              <td data-num="88">88</td>
+              <td><span class="badge ok">Activo</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="footer-note" id="estado">Filas actuales: <strong id="conteo">3</strong></p>
+    </div>
+  </div>
+
+  <script>
+    // Utilidad: actualizar conteo de filas
+    const tabla = document.getElementById('tabla');
+    const tbody = tabla.querySelector('tbody');
+    const conteo = document.getElementById('conteo');
+    const intro = document.getElementById('intro');
+
+    function actualizarConteo() {
+      conteo.textContent = tbody.rows.length;
+    }
+
+    // Agregar fila con prompts simples
+    document.getElementById('btn-agregar').addEventListener('click', () => {
+      const nombre = prompt('Nombre de la persona:');
+      if (!nombre) return;
+      const categoria = prompt('Categoría (Frontend/Backend/Data/etc.):') || 'General';
+      const puntajeStr = prompt('Puntaje (0-100):');
+      const puntaje = Number(puntajeStr);
+      if (!Number.isFinite(puntaje) || puntaje < 0 || puntaje > 100) {
+        alert('Puntaje inválido. Debe ser un número entre 0 y 100.');
+        return;
+      }
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${nombre}</td>
+        <td>${categoria}</td>
+        <td data-num="${puntaje}">${puntaje}</td>
+        <td><span class="badge ${puntaje >= 85 ? 'ok' : ''}">${puntaje >= 85 ? 'Activo' : 'Pendiente'}</span></td>
+      `;
+      tbody.appendChild(tr);
+      actualizarConteo();
+      intro.innerHTML = 'Fila agregada correctamente ✔️. Puedes seguir agregando u ordenar por puntaje.';
+    });
+
+    // Ordenar por puntaje (desc/asc alternado)
+    let ordenDesc = true;
+    document.getElementById('btn-ordenar').addEventListener('click', () => {
+      const filas = Array.from(tbody.rows);
+      filas.sort((a, b) => {
+        const va = Number(a.querySelector('[data-num]').dataset.num);
+        const vb = Number(b.querySelector('[data-num]').dataset.num);
+        return ordenDesc ? vb - va : va - vb;
+      });
+      filas.forEach(tr => tbody.appendChild(tr));
+      ordenDesc = !ordenDesc;
+    });
+
+    // Inicializar
+    actualizarConteo();
+  </script>
+</body>
+</html>
